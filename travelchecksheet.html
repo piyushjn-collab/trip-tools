@@ -6,16 +6,16 @@
 <title>Family Travel Checksheet by Piyush</title>
 <style>
 :root{
-  --bp-green:#007F00; --bp-dark:#005A00; --bp-lime:#99CC00; --bp-yellow:#FFE600;
-  --bg:#F5F7F2; --card:#FFFFFF; --ink:#1A1A1A; --muted:#6B6B6B; --line:#E3E8DC;
-  --kept:#007F00; --kept-bg:#E6F4E0;
-  --later:#C9A400; --later-bg:#FFF9C7;
+  --bp-green:#0F4C5C; --bp-dark:#0A3540; --bp-lime:#2EC4B6; --bp-yellow:#FF6B6B;
+  --bg:#FDF6EC; --card:#FFFFFF; --ink:#1F2933; --muted:#5B6B73; --line:#EADFCF;
+  --kept:#0F4C5C; --kept-bg:#DDF3F0;
+  --later:#FF6B6B; --later-bg:#FFE6E3;
   --na:#7A7A7A; --na-bg:#ECECEC;
-  --shadow:0 4px 18px rgba(0,60,0,.08);
+  --shadow:0 4px 18px rgba(15,76,92,.08);
 }
 body.dark{
-  --bg:#0E1A0E; --card:#172617; --ink:#EAF2E6; --muted:#9DB09A; --line:#2B3F2B;
-  --kept-bg:#1D3F1D; --later-bg:#4A4210; --na-bg:#2C2C2C; --shadow:0 4px 18px rgba(0,0,0,.5);
+  --bg:#0D1B21; --card:#15282F; --ink:#ECF4F3; --muted:#9DB4B8; --line:#23404A;
+  --kept-bg:#163E45; --later-bg:#4A2526; --na-bg:#2C2C2C; --shadow:0 4px 18px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Roboto,Arial,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
@@ -32,7 +32,7 @@ body{margin:0;font-family:Roboto,Arial,"Segoe UI",sans-serif;background:var(--bg
 .trip input{border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:8px 12px;font:inherit;background:rgba(255,255,255,.15);color:#fff;outline:none}
 .trip input::placeholder{color:rgba(255,255,255,.8)}
 .trip input[type=date]{color-scheme:dark}
-.countdown{background:var(--bp-yellow);color:#1A1A1A;padding:6px 14px;border-radius:999px;font-weight:700;font-size:14px}
+.countdown{background:var(--bp-yellow);color:#fff;padding:6px 14px;border-radius:999px;font-weight:700;font-size:14px}
 .ring-wrap{display:flex;align-items:center;gap:18px}
 .ring{width:120px;height:120px;position:relative}
 .ring svg{transform:rotate(-90deg)}
@@ -55,8 +55,11 @@ body{margin:0;font-family:Roboto,Arial,"Segoe UI",sans-serif;background:var(--bg
 .btn-ghost:hover{border-color:var(--bp-green);color:var(--bp-green)}
 .btn-primary{background:var(--bp-green);color:#fff}
 .btn-primary:hover{background:var(--bp-dark)}
-.btn-yellow{background:var(--bp-yellow);color:#1A1A1A}
+.btn-yellow{background:var(--bp-yellow);color:#fff}
 .btn-small{padding:6px 10px;font-size:12px}
+.home-btn{display:inline-flex;align-items:center;gap:6px;margin-bottom:12px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;text-decoration:none;font-size:13px;font-weight:700}
+.home-btn:hover{background:rgba(255,255,255,.28)}
+@media print{.home-btn{display:none}}
 
 /* CONTENT */
 main{max-width:1100px;margin:24px auto 40px;padding:0 14px}
@@ -91,7 +94,7 @@ body.dark .group-head h2{color:var(--bp-lime)}
 .label{font-size:14px}
 .del{border:none;background:none;color:var(--muted);cursor:pointer;font-size:13px}
 .cb{display:flex;justify-content:center}
-.cb input{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:5px;border:2px solid #B9C4B0;cursor:pointer;position:relative;background:var(--card);margin:0}
+.cb input{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:5px;border:2px solid #B7C6C9;cursor:pointer;position:relative;background:var(--card);margin:0}
 .cb input:checked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900}
 .cb input.k:checked{background:var(--kept);border-color:var(--kept)}
 .cb input.l:checked{background:var(--later);border-color:var(--later)}
@@ -125,6 +128,7 @@ body.dark .group-head h2{color:var(--bp-lime)}
 <header class="hero">
   <div class="hero-inner">
     <div>
+      <a class="home-btn" href="https://piyushjn-collab.github.io" title="Back to home page">🏠 Home</a>
       <h1 id="title">🧳 Family Travel Checksheet by Piyush</h1>
       <p>Pack smart, travel happy. Ticks are saved automatically on this device.</p>
       <div class="trip">
@@ -137,13 +141,13 @@ body.dark .group-head h2{color:var(--bp-lime)}
       <div class="ring">
         <svg width="120" height="120">
           <circle cx="60" cy="60" r="52" stroke="rgba(255,255,255,.25)" stroke-width="12" fill="none"/>
-          <circle id="ringFg" cx="60" cy="60" r="52" stroke="#FFE600" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .5s"/>
+          <circle id="ringFg" cx="60" cy="60" r="52" stroke="#FF6B6B" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .5s"/>
         </svg>
         <div class="pct"><span id="pct">0%</span><small>decided</small></div>
       </div>
       <div class="legend">
-        <div><span class="dot" style="background:#007F00"></span><b id="cKept">0</b> Kept</div>
-        <div><span class="dot" style="background:#FFE600"></span><b id="cLater">0</b> Later</div>
+        <div><span class="dot" style="background:#2EC4B6"></span><b id="cKept">0</b> Kept</div>
+        <div><span class="dot" style="background:#FF6B6B"></span><b id="cLater">0</b> Later</div>
         <div><span class="dot" style="background:#BDBDBD"></span><b id="cNa">0</b> Not required</div>
         <div><span class="dot" style="background:transparent"></span><b id="cOpen">0</b> Pending</div>
       </div>
@@ -247,8 +251,8 @@ function render(){
       html += '<div class="card'+(state.collapsed[s.id]?' collapsed':'')+'" id="card-'+s.id+'">'+
         '<div class="card-head" data-toggle="'+s.id+'"><div class="card-title"><span class="ic">'+s.icon+'</span><div>'+esc(s.name)+
         '<div class="meta" id="meta-'+s.id+'"></div></div></div><div style="display:flex;align-items:center;gap:8px">'+
-        '<div class="mini-ring"><svg width="34" height="34"><circle cx="17" cy="17" r="14" stroke="#E3E8DC" stroke-width="4" fill="none"/>'+
-        '<circle id="mr-'+s.id+'" cx="17" cy="17" r="14" stroke="#007F00" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="88" style="transition:stroke-dashoffset .4s"/></svg></div>'+
+        '<div class="mini-ring"><svg width="34" height="34"><circle cx="17" cy="17" r="14" stroke="#EADFCF" stroke-width="4" fill="none"/>'+
+        '<circle id="mr-'+s.id+'" cx="17" cy="17" r="14" stroke="#2EC4B6" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="88" style="transition:stroke-dashoffset .4s"/></svg></div>'+
         '<span class="chev">▼</span></div></div><div class="card-body">'+
         '<div class="cols"><span>Item</span><span style="color:var(--kept)">Kept</span><span style="color:var(--later)">Later</span><span>Not req.</span></div>';
       itemsOf(s).forEach(function(it, idx){
@@ -416,11 +420,11 @@ $("copyLater").onclick=function(){
   } else fallback();
 };
 
-/* Confetti in bp colours */
+/* Confetti in Theme of Piyush colours */
 function confetti(){
   var cv=$("confetti"), ctx=cv.getContext && cv.getContext("2d"); if(!ctx) return;
   cv.width=innerWidth; cv.height=innerHeight;
-  var cols=["#007F00","#99CC00","#FFE600","#005A00","#FFFFFF"], P=[];
+  var cols=["#0F4C5C","#2EC4B6","#FF6B6B","#FDF6EC","#FFFFFF"], P=[];
   for(var i=0;i<180;i++) P.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,r:4+Math.random()*6,c:cols[i%cols.length],vx:-2+Math.random()*4,vy:2+Math.random()*4,a:Math.random()*6,va:-.2+Math.random()*.4});
   var f=0;
   (function tick(){
