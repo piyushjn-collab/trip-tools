@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Travel Checksheet by Piyush</title>
+<style>
+:root{
+  --bp-green:#007F00; --bp-dark:#005A00; --bp-lime:#99CC00; --bp-yellow:#FFE600;
+  --bg:#F5F7F2; --card:#FFFFFF; --ink:#1A1A1A; --muted:#6B6B6B; --line:#E3E8DC;
+  --kept:#007F00; --kept-bg:#E6F4E0;
+  --later:#C9A400; --later-bg:#FFF9C7;
+  --na:#7A7A7A; --na-bg:#ECECEC;
+  --shadow:0 4px 18px rgba(0,60,0,.08);
+}
+body.dark{
+  --bg:#0E1A0E; --card:#172617; --ink:#EAF2E6; --muted:#9DB09A; --line:#2B3F2B;
+  --kept-bg:#1D3F1D; --later-bg:#4A4210; --na-bg:#2C2C2C; --shadow:0 4px 18px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Roboto,Arial,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+
+/* HERO */
+.hero{background:linear-gradient(120deg,var(--bp-dark) 0%,var(--bp-green) 55%,var(--bp-lime) 100%);color:#fff;padding:26px 20px 72px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;right:-80px;top:-80px;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,var(--bp-yellow) 0 18%,rgba(255,255,255,.9) 19% 28%,var(--bp-lime) 29% 45%,rgba(255,255,255,.15) 46% 100%);opacity:.35}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,var(--bp-yellow),var(--bp-lime),var(--bp-green))}
+.hero-inner{max-width:1100px;margin:auto;display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:space-between;position:relative;z-index:1}
+.hero h1{margin:0 0 6px;font-size:28px;font-weight:700}
+.hero p{margin:0;opacity:.92}
+.trip{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.trip input{border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:8px 12px;font:inherit;background:rgba(255,255,255,.15);color:#fff;outline:none}
+.trip input::placeholder{color:rgba(255,255,255,.8)}
+.trip input[type=date]{color-scheme:dark}
+.countdown{background:var(--bp-yellow);color:#1A1A1A;padding:6px 14px;border-radius:999px;font-weight:700;font-size:14px}
+.ring-wrap{display:flex;align-items:center;gap:18px}
+.ring{width:120px;height:120px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:26px}
+.ring .pct small{font-size:11px;font-weight:500}
+.legend{font-size:14px;line-height:1.9}
+.legend b{display:inline-block;min-width:28px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;border:1px solid rgba(255,255,255,.6)}
+
+/* TOOLBAR */
+.toolbar{max-width:1100px;margin:-46px auto 0;position:sticky;top:8px;z-index:20;padding:0 14px}
+.tb{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:4px solid var(--bp-green)}
+.tb input[type=search]{flex:1;min-width:180px;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit}
+.tb input[type=search]:focus{outline:2px solid var(--bp-lime)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);padding:8px 12px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px}
+.chip.active{background:var(--bp-green);color:#fff;border-color:var(--bp-green)}
+.btn{border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font:inherit;font-size:13px;font-weight:700}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--bp-green);color:var(--bp-green)}
+.btn-primary{background:var(--bp-green);color:#fff}
+.btn-primary:hover{background:var(--bp-dark)}
+.btn-yellow{background:var(--bp-yellow);color:#1A1A1A}
+.btn-small{padding:6px 10px;font-size:12px}
+
+/* CONTENT */
+main{max-width:1100px;margin:24px auto 40px;padding:0 14px}
+.group{margin-bottom:30px}
+.group-head{display:flex;align-items:center;gap:12px;margin:0 0 12px;flex-wrap:wrap}
+.group-head h2{margin:0;font-size:20px;color:var(--bp-green)}
+body.dark .group-head h2{color:var(--bp-lime)}
+.group-bar{flex:1;min-width:120px;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.group-bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--bp-green),var(--bp-lime),var(--bp-yellow));transition:width .4s}
+.group-count{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;border:2px solid transparent;transition:border-color .3s}
+.card.complete{border-color:var(--bp-green)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;cursor:pointer;user-select:none;border-left:5px solid var(--bp-green);border-bottom:1px solid var(--line)}
+.card.complete .card-head{background:var(--kept-bg)}
+.card-title{display:flex;align-items:center;gap:10px;font-weight:700}
+.card-title .ic{font-size:22px}
+.meta{font-size:12px;color:var(--muted);font-weight:500}
+.mini-ring svg{transform:rotate(-90deg);display:block}
+.chev{transition:transform .25s;color:var(--muted)}
+.card.collapsed .card-body{display:none}
+.card.collapsed .chev{transform:rotate(-90deg)}
+.cols,.row{display:grid;grid-template-columns:1fr 56px 56px 56px;align-items:center;padding:8px 16px}
+.cols{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)}
+.cols span{text-align:center}.cols span:first-child{text-align:left}
+.row{border-top:1px dashed var(--line);transition:background .25s}
+.row.s-kept{background:var(--kept-bg)}
+.row.s-later{background:var(--later-bg)}
+.row.s-na{background:var(--na-bg)}
+.row.s-na .label{text-decoration:line-through;opacity:.6}
+.row.hidden{display:none}
+.label{font-size:14px}
+.del{border:none;background:none;color:var(--muted);cursor:pointer;font-size:13px}
+.cb{display:flex;justify-content:center}
+.cb input{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:5px;border:2px solid #B9C4B0;cursor:pointer;position:relative;background:var(--card);margin:0}
+.cb input:checked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900}
+.cb input.k:checked{background:var(--kept);border-color:var(--kept)}
+.cb input.l:checked{background:var(--later);border-color:var(--later)}
+.cb input.n:checked{background:var(--na);border-color:var(--na)}
+.card-foot{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--line);align-items:center}
+.card-foot input{flex:1;min-width:0;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-size:13px}
+
+/* TOAST / MODAL */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(140px);background:var(--bp-dark);color:#fff;padding:12px 16px;border-radius:10px;display:flex;gap:14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .3s;z-index:100;font-size:14px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);color:var(--ink);border-radius:14px;max-width:520px;width:100%;padding:20px;max-height:80vh;overflow:auto;border-top:6px solid var(--bp-green)}
+.modal h3{margin-top:0;color:var(--bp-green)}
+.modal pre{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:8px;font-size:13px;font-family:inherit}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:300}
+.footer-note{text-align:center;color:var(--muted);font-size:12px;margin-bottom:30px}
+@media print{
+  .toolbar,.card-foot,.trip,#toast{display:none!important}
+  .card.collapsed .card-body{display:block}
+  .card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+  .hero,.row,.cb input{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+@media (max-width:520px){.grid{grid-template-columns:1fr}.cols,.row{grid-template-columns:1fr 44px 44px 44px}.hero h1{font-size:22px}}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1 id="title">🧳 Family Travel Checksheet by Piyush</h1>
+      <p>Pack smart, travel happy. Ticks are saved automatically on this device.</p>
+      <div class="trip">
+        <input id="tripName" placeholder="Trip name (e.g. Home)">
+        <input id="tripDate" type="date" title="Departure date">
+        <span class="countdown" id="countdown">📅 Set a departure date</span>
+      </div>
+    </div>
+    <div class="ring-wrap">
+      <div class="ring">
+        <svg width="120" height="120">
+          <circle cx="60" cy="60" r="52" stroke="rgba(255,255,255,.25)" stroke-width="12" fill="none"/>
+          <circle id="ringFg" cx="60" cy="60" r="52" stroke="#FFE600" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .5s"/>
+        </svg>
+        <div class="pct"><span id="pct">0%</span><small>decided</small></div>
+      </div>
+      <div class="legend">
+        <div><span class="dot" style="background:#007F00"></span><b id="cKept">0</b> Kept</div>
+        <div><span class="dot" style="background:#FFE600"></span><b id="cLater">0</b> Later</div>
+        <div><span class="dot" style="background:#BDBDBD"></span><b id="cNa">0</b> Not required</div>
+        <div><span class="dot" style="background:transparent"></span><b id="cOpen">0</b> Pending</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="tb">
+    <input type="search" id="search" placeholder="🔍 Search items…">
+    <div class="chips" id="filters">
+      <button class="chip active" data-f="all">All</button>
+      <button class="chip" data-f="open">Pending</button>
+      <button class="chip" data-f="kept">Kept</button>
+      <button class="chip" data-f="later">Later</button>
+      <button class="chip" data-f="na">Not required</button>
+    </div>
+    <button class="btn btn-ghost" id="laterBtn">📝 Later list</button>
+    <button class="btn btn-ghost" id="printBtn">🖨️ Print</button>
+    <button class="btn btn-ghost" id="themeBtn">🌙</button>
+    <button class="btn btn-primary" id="resetAll">⟲ Reset All</button>
+  </div>
+</div>
+
+<main id="app"></main>
+<p class="footer-note">Tip: click a ticked box again to clear it • Click a section header to collapse/expand</p>
+
+<div class="toast" id="toast"><span id="toastMsg"></span><button class="btn btn-yellow btn-small" id="undoBtn">Undo</button></div>
+
+<div class="modal-bg" id="laterModal">
+  <div class="modal">
+    <h3>📝 Still to pack (Later)</h3>
+    <pre id="laterText"></pre>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="copyLater">📋 Copy for WhatsApp</button>
+      <button class="btn btn-primary" id="closeLater">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="confirmModal">
+  <div class="modal">
+    <h3>Reset whole checksheet?</h3>
+    <p>All ticks will be cleared. You can still undo straight after.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="confirmNo">Cancel</button>
+      <button class="btn btn-primary" id="confirmYes">Yes, reset all</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+
+/* ---------- DATA (from PDF) ---------- */
+var DATA = [
+ {group:"Family Travel Luggage Checklist", icon:"🧳", sections:[
+  {id:"clo", name:"Clothing (per person)", icon:"👕", items:["Casual outfits (tops, bottoms)","Sleepwear","Undergarments","Socks","Sweaters / Jackets","Swimwear","Comfortable shoes / sandals","Flip-flops","Formal wear (if needed)","Hats / Caps","Raincoats / Umbrellas"]},
+  {id:"toi", name:"Toiletries", icon:"🧴", items:["Toothbrushes & Toothpaste","Shampoo & Conditioner","Soap / Body wash","Hair Oil","Deodorant","Hairbrush / Comb","Moisturizer / Sunscreen","Razor & Shaving cream","Feminine hygiene products","Nail clippers","Travel towels","Paper Soap"]},
+  {id:"hea", name:"Health & Medication", icon:"💊", items:["Prescription medicines","Pain relievers","Band-aids / First-aid kit","Thermometer","Mosquito repellent","Hand sanitizer","Face masks"]},
+  {id:"doc", name:"Documents", icon:"🛂", items:["Passports / IDs","Travel insurance","Hotel & flight bookings","Emergency contacts","Copies of important documents"]},
+  {id:"ele", name:"Electronics", icon:"🔌", items:["Phones & Chargers","Power banks","Travel adapters","Camera & accessories","Tablet / Laptop","Trimmer & Cable","Extension / Multi-Port"]},
+  {id:"mis", name:"Miscellaneous", icon:"🎒", items:["Laundry bag","Ziplock bags","Puke bag","Hand bag","Snacks","Water bottles","Books / Magazines","Travel pillow","Eye mask & Earplugs","Fevikwik","Niddle & Thread","ClothesRope","Scissor","Match Box","Unplug Sockets", "Doors and Windows", "Jewellery Safe Box"]}
+ ]},
+ {group:"Backpack / Carry-on Checklist", icon:"🎒", sections:[
+  {id:"ess", name:"Essentials", icon:"👛", items:["Wallets","Belts","Cash" , "Cards","Watch & cable","Spectacle and cover","Sunglasses","Travel documents","Tissues / Wet wipes","Lip balm / Hand cream","Hand sanitizer","Small first-aid kit"]},
+  {id:"ent", name:"Entertainment", icon:"🎧", items:["Books / Kindle","Headphones","Loud speakers","Notebook & Pen","Travel games / Cards"]}
+ ]},
+ {group:"Child-Specific Checklist", icon:"🧸", sections:[
+  {id:"kclo", name:"Clothing", icon:"👗", items:["Comfortable outfits","Extra underwear","Pajamas","Jacket / Sweater","Swimwear","Shoes / Sandals"]},
+  {id:"kess", name:"Essentials", icon:"🖍️", items:["Favorite toys / Stuffed animal","Coloring books / Crayons","Storybooks","Tablet","Snacks & juice","Sippy cup / Water bottle","Small blanket","Travel pillow"]},
+  {id:"khea", name:"Toiletries & Health", icon:"🫧", items:["Child-safe shampoo & soap","Toothbrush & toothpaste","Diaper / Pull-ups","Wet wipes","Child-safe sunscreen","Medicines (fever, cold, etc.)"]}
+ ]}
+];
+
+/* ---------- SAFE STORAGE (works even when browser/viewer blocks localStorage) ---------- */
+var KEY = "familyTravelChecksheet_bp_v2", store = null;
+try { store = window.localStorage; store.setItem("__t","1"); store.removeItem("__t"); } catch(e){ store = null; }
+function load(){ try { return store ? JSON.parse(store.getItem(KEY) || "{}") : {}; } catch(e){ return {}; } }
+function save(){ try { if (store) store.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+
+var state = load();
+state.status = state.status || {}; state.custom = state.custom || {}; state.collapsed = state.collapsed || {};
+var filter = "all", query = "", undoSnap = null, celebrated = false, toastTimer = null;
+
+function allSections(){ var a=[]; DATA.forEach(function(g){ a = a.concat(g.sections); }); return a; }
+function findSection(id){ return allSections().filter(function(s){ return s.id===id; })[0]; }
+function itemsOf(s){ return s.items.concat(state.custom[s.id] || []); }
+function keyOf(sid, it){ return sid + "::" + it; }
+function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+/* ---------- RENDER ---------- */
+function render(){
+  var html = "";
+  DATA.forEach(function(g, gi){
+    html += '<section class="group"><div class="group-head"><h2>'+g.icon+' '+esc(g.group)+'</h2>'+
+            '<div class="group-bar"><span id="gbar'+gi+'"></span></div><span class="group-count" id="gcount'+gi+'"></span></div><div class="grid">';
+    g.sections.forEach(function(s){
+      html += '<div class="card'+(state.collapsed[s.id]?' collapsed':'')+'" id="card-'+s.id+'">'+
+        '<div class="card-head" data-toggle="'+s.id+'"><div class="card-title"><span class="ic">'+s.icon+'</span><div>'+esc(s.name)+
+        '<div class="meta" id="meta-'+s.id+'"></div></div></div><div style="display:flex;align-items:center;gap:8px">'+
+        '<div class="mini-ring"><svg width="34" height="34"><circle cx="17" cy="17" r="14" stroke="#E3E8DC" stroke-width="4" fill="none"/>'+
+        '<circle id="mr-'+s.id+'" cx="17" cy="17" r="14" stroke="#007F00" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="88" style="transition:stroke-dashoffset .4s"/></svg></div>'+
+        '<span class="chev">▼</span></div></div><div class="card-body">'+
+        '<div class="cols"><span>Item</span><span style="color:var(--kept)">Kept</span><span style="color:var(--later)">Later</span><span>Not req.</span></div>';
+      itemsOf(s).forEach(function(it, idx){
+        var k = keyOf(s.id, it), st = state.status[k] || "";
+        html += '<div class="row'+(st?' s-'+st:'')+'" data-key="'+esc(k)+'" data-name="'+esc(it.toLowerCase())+'">'+
+          '<span class="label">'+esc(it)+(idx>=s.items.length?' <button class="del" data-del="'+s.id+'" data-item="'+esc(it)+'" title="Remove">✕</button>':'')+'</span>'+
+          '<span class="cb"><input type="checkbox" class="k" data-v="kept" '+(st==="kept"?"checked":"")+' title="Kept"></span>'+
+          '<span class="cb"><input type="checkbox" class="l" data-v="later" '+(st==="later"?"checked":"")+' title="Later"></span>'+
+          '<span class="cb"><input type="checkbox" class="n" data-v="na" '+(st==="na"?"checked":"")+' title="Not required"></span></div>';
+      });
+      html += '</div><div class="card-foot"><input placeholder="+ Add item and press Enter" data-add="'+s.id+'">'+
+        '<button class="btn btn-ghost btn-small" data-allkept="'+s.id+'" title="Mark all pending as Kept">✓ All</button>'+
+        '<button class="btn btn-primary btn-small" data-reset="'+s.id+'">⟲ Reset</button></div></div>';
+    });
+    html += '</div></section>';
+  });
+  $("app").innerHTML = html;
+  update();
+}
+
+/* ---------- PROGRESS ---------- */
+function update(){
+  var tot=0, c={kept:0,later:0,na:0};
+  DATA.forEach(function(g, gi){
+    var gt=0, gd=0;
+    g.sections.forEach(function(s){
+      var its=itemsOf(s), d=0, sc={kept:0,later:0,na:0};
+      its.forEach(function(it){ var st=state.status[keyOf(s.id,it)]; if(st){ d++; sc[st]++; c[st]++; } });
+      tot+=its.length; gt+=its.length; gd+=d;
+      $("meta-"+s.id).textContent = d+"/"+its.length+" decided · "+sc.later+" later";
+      $("mr-"+s.id).setAttribute("stroke-dashoffset", 88 - 88*(its.length? d/its.length : 0));
+      $("card-"+s.id).classList.toggle("complete", its.length>0 && d===its.length && sc.later===0);
+    });
+    $("gbar"+gi).style.width = (gt? gd/gt*100 : 0) + "%";
+    $("gcount"+gi).textContent = gd+" / "+gt;
+  });
+  var done=c.kept+c.later+c.na, pct= tot? Math.round(done/tot*100) : 0;
+  $("pct").textContent = pct+"%";
+  $("ringFg").setAttribute("stroke-dashoffset", 326.7 - 326.7*pct/100);
+  $("cKept").textContent=c.kept; $("cLater").textContent=c.later; $("cNa").textContent=c.na; $("cOpen").textContent=tot-done;
+  applyFilter();
+  if (tot>0 && done===tot && c.later===0){ if(!celebrated){ celebrated=true; confetti(); showToast("🎉 All packed! Have a wonderful trip!", false); } }
+  else celebrated=false;
+}
+
+function applyFilter(){
+  var rows=document.querySelectorAll(".row");
+  for (var i=0;i<rows.length;i++){
+    var r=rows[i], st=state.status[r.getAttribute("data-key")] || "open";
+    var ok=(filter==="all"||filter===st) && (!query || r.getAttribute("data-name").indexOf(query)>-1);
+    r.classList.toggle("hidden", !ok);
+  }
+  var cards=document.querySelectorAll(".card");
+  for (var j=0;j<cards.length;j++){
+    var any=cards[j].querySelectorAll(".row:not(.hidden)").length;
+    cards[j].style.display = ((filter!=="all"||query) && !any) ? "none" : "";
+  }
+}
+
+/* ---------- EVENTS ---------- */
+document.addEventListener("change", function(e){
+  var cb=e.target;
+  if (!cb.matches || !cb.matches(".cb input")) return;
+  var row=cb.closest(".row"), k=row.getAttribute("data-key");
+  var boxes=row.querySelectorAll(".cb input");
+  for (var i=0;i<boxes.length;i++) if (boxes[i]!==cb) boxes[i].checked=false;
+  if (cb.checked) state.status[k]=cb.getAttribute("data-v"); else delete state.status[k];
+  row.className="row"+(state.status[k]?" s-"+state.status[k]:"");
+  save(); update();
+});
+
+document.addEventListener("click", function(e){
+  var t=e.target;
+  var tog=t.closest ? t.closest("[data-toggle]") : null;
+  if (tog){ var id=tog.getAttribute("data-toggle"); state.collapsed[id]=!state.collapsed[id]; save(); $("card-"+id).classList.toggle("collapsed"); return; }
+  if (t.getAttribute("data-reset")){ resetSection(t.getAttribute("data-reset")); return; }
+  if (t.getAttribute("data-allkept")){
+    var s=findSection(t.getAttribute("data-allkept")); snapshot();
+    itemsOf(s).forEach(function(it){ var k=keyOf(s.id,it); if(!state.status[k]) state.status[k]="kept"; });
+    save(); render(); showToast('✓ Pending items in "'+s.name+'" marked Kept', true); return;
+  }
+  if (t.getAttribute("data-del")){
+    var sid=t.getAttribute("data-del"), item=t.getAttribute("data-item"), arr=state.custom[sid]||[];
+    var ix=arr.indexOf(item); if(ix>-1) arr.splice(ix,1);
+    delete state.status[keyOf(sid,item)]; save(); render(); return;
+  }
+  if (t.classList.contains("chip")){
+    var chips=document.querySelectorAll(".chip"); for(var i=0;i<chips.length;i++) chips[i].classList.remove("active");
+    t.classList.add("active"); filter=t.getAttribute("data-f"); applyFilter();
+  }
+});
+
+document.addEventListener("keydown", function(e){
+  var t=e.target, sid=t.getAttribute && t.getAttribute("data-add");
+  if (sid && e.key==="Enter"){
+    var v=t.value.trim(); if(!v) return;
+    var s=findSection(sid);
+    if (itemsOf(s).indexOf(v)>-1){ showToast("Item already exists", false); return; }
+    (state.custom[sid]=state.custom[sid]||[]).push(v); save(); render();
+    var inp=document.querySelector('[data-add="'+sid+'"]'); if(inp) inp.focus();
+  }
+  if (e.key==="Escape"){ $("laterModal").classList.remove("show"); $("confirmModal").classList.remove("show"); }
+});
+
+function snapshot(){ undoSnap=JSON.stringify(state); }
+function resetSection(id){
+  var s=findSection(id); snapshot();
+  itemsOf(s).forEach(function(it){ delete state.status[keyOf(id,it)]; });
+  save(); render(); showToast('⟲ "'+s.name+'" reset', true);
+}
+
+$("resetAll").onclick=function(){ $("confirmModal").classList.add("show"); };
+$("confirmNo").onclick=function(){ $("confirmModal").classList.remove("show"); };
+$("confirmYes").onclick=function(){
+  $("confirmModal").classList.remove("show");
+  snapshot(); state.status={}; save(); render(); showToast("⟲ Whole checksheet reset", true);
+};
+
+function showToast(msg, undo){
+  $("toastMsg").textContent=msg; $("undoBtn").style.display= undo ? "" : "none";
+  $("toast").classList.add("show"); clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ $("toast").classList.remove("show"); }, 5000);
+}
+$("undoBtn").onclick=function(){ if(!undoSnap) return; state=JSON.parse(undoSnap); undoSnap=null; save(); render(); $("toast").classList.remove("show"); };
+
+$("search").oninput=function(){ query=this.value.trim().toLowerCase(); applyFilter(); };
+$("printBtn").onclick=function(){ window.print(); };
+
+function setTheme(d){ document.body.classList.toggle("dark", d); $("themeBtn").textContent = d ? "☀️" : "🌙"; }
+setTheme(!!state.dark);
+$("themeBtn").onclick=function(){ state.dark=!state.dark; setTheme(state.dark); save(); };
+
+/* Trip + countdown */
+$("tripName").value=state.tripName||""; $("tripDate").value=state.tripDate||"";
+$("tripName").oninput=function(){ state.tripName=this.value; save(); setTitle(); };
+$("tripDate").onchange=function(){ state.tripDate=this.value; save(); countdownTxt(); };
+function setTitle(){ $("title").textContent="🧳 "+(state.tripName ? state.tripName+" Trip Checksheet by Piyush" : "Family Travel Checksheet by Piyush"); }
+function countdownTxt(){
+  var el=$("countdown");
+  if(!state.tripDate){ el.textContent="📅 Set a departure date"; return; }
+  var p=state.tripDate.split("-"), dep=new Date(+p[0], +p[1]-1, +p[2]), today=new Date(); today.setHours(0,0,0,0);
+  var d=Math.round((dep-today)/864e5);
+  el.textContent = d>1 ? "⏳ "+d+" days to go" : d===1 ? "⏳ Leaving tomorrow!" : d===0 ? "✈️ Travel day!" : "🏡 Trip done – hope it was great";
+}
+setTitle(); countdownTxt();
+
+/* Later list */
+$("laterBtn").onclick=function(){
+  var out="🧳 "+(state.tripName? state.tripName+" – " : "")+"Still to pack:\n", n=0;
+  DATA.forEach(function(g){ g.sections.forEach(function(s){
+    var l=itemsOf(s).filter(function(it){ return state.status[keyOf(s.id,it)]==="later"; });
+    if(l.length){ out+="\n"+s.icon+" "+s.name+" ("+g.group.split(" ")[0].replace("Child-Specific","Kid")+")\n"+l.map(function(x){return "  • "+x;}).join("\n")+"\n"; n+=l.length; }
+  }); });
+  $("laterText").textContent = n ? out : "Nothing marked as Later. 🙌";
+  $("laterModal").classList.add("show");
+};
+$("closeLater").onclick=function(){ $("laterModal").classList.remove("show"); };
+$("copyLater").onclick=function(){
+  var txt=$("laterText").textContent;
+  function fallback(){ var ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); showToast("📋 Copied – paste in WhatsApp", false); }catch(e){ showToast("Select the text and copy manually", false); }
+    document.body.removeChild(ta); }
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ showToast("📋 Copied – paste in WhatsApp", false); }, fallback);
+  } else fallback();
+};
+
+/* Confetti in bp colours */
+function confetti(){
+  var cv=$("confetti"), ctx=cv.getContext && cv.getContext("2d"); if(!ctx) return;
+  cv.width=innerWidth; cv.height=innerHeight;
+  var cols=["#007F00","#99CC00","#FFE600","#005A00","#FFFFFF"], P=[];
+  for(var i=0;i<180;i++) P.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,r:4+Math.random()*6,c:cols[i%cols.length],vx:-2+Math.random()*4,vy:2+Math.random()*4,a:Math.random()*6,va:-.2+Math.random()*.4});
+  var f=0;
+  (function tick(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    P.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.a+=p.va; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle=p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6); ctx.restore(); });
+    if(++f<240) requestAnimationFrame(tick); else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+render();
+})();
+</script>
+</body>
+</html>

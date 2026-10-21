@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#007F00">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>TripSplit – Shared Trip Expenses</title>
+<style>
+:root{
+  --g:#007F00; --g2:#009B00; --lime:#99CC00; --y:#FFE600; --dg:#005A00;
+  --bg:#F3F7F1; --card:#FFFFFF; --tx:#1B2A1B; --mu:#667466; --ln:#E2EAE0;
+  --red:#D6332F; --pos:#0A8A0A; --sh:0 4px 18px rgba(0,60,0,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0E1510;--card:#17221A;--tx:#E8F2E6;--mu:#9DB09A;--ln:#26362A;--sh:0 4px 18px rgba(0,0,0,.4);--pos:#4CD44C;--red:#FF6B66}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:140px}
+/* Header */
+.top{position:sticky;top:0;z-index:20;color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 14px;
+  background:linear-gradient(135deg,var(--dg) 0%,var(--g) 45%,var(--g2) 75%,var(--lime) 100%);
+  border-radius:0 0 22px 22px;box-shadow:0 6px 20px rgba(0,90,0,.25);overflow:hidden}
+.top:after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;
+  background:conic-gradient(var(--y),var(--lime),var(--g2),var(--y),var(--lime),var(--g2),var(--y));opacity:.22}
+.top .row{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.top h1{font-size:19px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top small{opacity:.85;font-size:12px}
+.ib{background:rgba(255,255,255,.18);border:0;color:#fff;width:38px;height:38px;border-radius:12px;font-size:18px;cursor:pointer;flex:none}
+.ib:active{transform:scale(.94)}
+.sun{width:34px;height:34px;border-radius:50%;flex:none;background:conic-gradient(var(--y),#fff,var(--lime),var(--y),#fff,var(--lime),var(--y));box-shadow:0 0 0 3px rgba(255,255,255,.3)}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:rgba(0,0,0,.18);padding:4px 10px;border-radius:20px}
+.dot{width:8px;height:8px;border-radius:50%;background:#bbb}
+.dot.live{background:var(--y);box-shadow:0 0 0 0 rgba(255,230,0,.7);animation:pulse 1.8s infinite}
+.dot.off{background:#ff7b7b}.dot.conn{background:#ffd27a}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(255,230,0,0)}100%{box-shadow:0 0 0 0 rgba(255,230,0,0)}}
+main{padding:14px}
+/* Cards */
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--sh);margin-bottom:12px;border:1px solid var(--ln)}
+.hero{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;border:0}
+.hero .big{font-size:30px;font-weight:800;letter-spacing:-.5px}
+.muted{color:var(--mu);font-size:13px}
+.hero .muted{color:rgba(255,255,255,.85)}
+.btn{border:0;border-radius:14px;padding:13px 16px;font-weight:700;cursor:pointer;background:var(--g);color:#fff;width:100%;font-size:15px}
+.btn:active{transform:scale(.98)}
+.btn.y{background:var(--y);color:#1B2A1B}
+.btn.ghost{background:transparent;color:var(--g);border:1.5px solid var(--g)}
+.btn.red{background:transparent;color:var(--red);border:1.5px solid var(--red)}
+.btn.sm{width:auto;padding:8px 12px;font-size:13px;border-radius:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+h3{margin:4px 2px 10px;font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--mu)}
+/* Lists */
+.item{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--ln);cursor:pointer}
+.item:last-child{border-bottom:0}
+.emo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;flex:none;background:rgba(0,127,0,.09)}
+.grow{flex:1;min-width:0}
+.t1{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amt{font-weight:800;text-align:right;white-space:nowrap}
+.pos{color:var(--pos)}.neg{color:var(--red)}
+.date{font-size:12px;font-weight:700;color:var(--mu);margin:14px 4px 4px;text-transform:uppercase;letter-spacing:.5px}
+.av{width:30px;height:30px;border-radius:50%;color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:800;flex:none}
+.pill{display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(0,127,0,.1);color:var(--g);font-weight:700}
+@media (prefers-color-scheme:dark){.pill{color:#7BE07B}.btn.ghost{color:#7BE07B;border-color:#7BE07B}}
+.empty{text-align:center;padding:34px 10px;color:var(--mu)}
+.empty .e{font-size:46px}
+.search{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--ln);background:var(--card);margin-bottom:6px}
+/* Tabs + FAB */
+#tabs{position:fixed;bottom:0;left:0;right:0;z-index:15;display:flex;justify-content:center;background:var(--card);border-top:1px solid var(--ln);padding:6px 6px calc(env(safe-area-inset-bottom) + 6px)}
+#tabs .in{display:flex;max-width:560px;width:100%}
+#tabs button{flex:1;border:0;background:none;padding:6px 0;font-size:11px;color:var(--mu);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600}
+#tabs button b{font-size:20px;font-weight:400}
+#tabs button.on{color:var(--g)}
+#tabs button.on b{transform:translateY(-2px)}
+#fab{position:fixed;right:max(18px,calc(50% - 262px));bottom:calc(env(safe-area-inset-bottom) + 76px);z-index:16;width:62px;height:62px;border-radius:20px;border:0;
+  background:linear-gradient(135deg,var(--y),#FFD000);color:#1B2A1B;font-size:32px;font-weight:300;box-shadow:0 8px 22px rgba(0,90,0,.35);cursor:pointer}
+#fab:active{transform:scale(.93)}
+.hide{display:none!important}
+/* Sheet */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;opacity:0;pointer-events:none;transition:.2s}
+.ov.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:560px;margin:0 auto;background:var(--card);border-radius:24px 24px 0 0;
+  padding:10px 18px calc(env(safe-area-inset-bottom) + 18px);max-height:92vh;overflow-y:auto;transform:translateY(105%);transition:transform .25s ease;-webkit-overflow-scrolling:touch}
+.sheet.on{transform:none}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--ln);margin:2px auto 12px}
+.sheet h2{margin:0 0 14px;font-size:19px}
+label.l{display:block;font-size:12px;font-weight:700;color:var(--mu);margin:12px 2px 6px;text-transform:uppercase;letter-spacing:.5px}
+.f{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--ln);background:var(--bg);outline:none;font-size:16px}
+.f:focus{border-color:var(--g)}
+.f.amt-in{font-size:28px;font-weight:800;padding:10px 14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--ln);background:var(--bg);border-radius:20px;padding:8px 12px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--g);background:rgba(0,127,0,.12);font-weight:700}
+.seg{display:flex;background:var(--bg);border-radius:12px;padding:4px;border:1px solid var(--ln)}
+.seg button{flex:1;border:0;background:none;padding:9px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--mu)}
+.seg button.on{background:var(--card);color:var(--g);box-shadow:var(--sh)}
+.exrow{display:flex;align-items:center;gap:10px;margin:8px 0}
+.exrow input{width:120px;text-align:right}
+.info{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,230,0,.18);font-size:14px;font-weight:600}
+.row{display:flex;gap:10px;align-items:center}
+/* Balance bars */
+.bar{height:8px;border-radius:5px;background:var(--ln);overflow:hidden;margin-top:6px;position:relative}
+.bar i{position:absolute;top:0;bottom:0;border-radius:5px}
+.donut{width:150px;height:150px;border-radius:50%;margin:6px auto;position:relative}
+.donut:after{content:"";position:absolute;inset:28px;border-radius:50%;background:var(--card)}
+.donut span{position:absolute;inset:0;display:grid;place-items:center;z-index:1;font-weight:800;font-size:15px;text-align:center}
+.leg{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px}
+.leg i{width:12px;height:12px;border-radius:4px;flex:none}
+.badge{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:linear-gradient(135deg,rgba(255,230,0,.25),rgba(153,204,0,.18));margin-bottom:8px}
+.badge .e{font-size:28px}
+.settle{display:flex;align-items:center;gap:8px;padding:12px 0;border-bottom:1px dashed var(--ln)}
+.settle:last-child{border-bottom:0}
+/* Toast & confetti */
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 14px);transform:translate(-50%,-150%);z-index:60;background:#1B2A1B;color:#fff;
+  padding:12px 16px;border-radius:14px;font-size:14px;max-width:92vw;box-shadow:0 8px 24px rgba(0,0,0,.3);transition:transform .3s;border-left:5px solid var(--y)}
+#toast.on{transform:translate(-50%,0)}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:70}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;letter-spacing:1px}
+ol.guide{padding-left:20px;line-height:1.6;font-size:14px}
+pre.rules{background:var(--bg);border:1px solid var(--ln);padding:10px;border-radius:10px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+a{color:var(--g)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top" id="hdr"></header>
+  <main id="view"></main>
+</div>
+<button id="fab" class="hide" data-act="addExp" aria-label="Add expense">+</button>
+<nav id="tabs" class="hide"><div class="in">
+  <button data-act="tab" data-arg="exp"><b>🧾</b>Expenses</button>
+  <button data-act="tab" data-arg="bal"><b>⚖️</b>Balances</button>
+  <button data-act="tab" data-arg="ins"><b>✨</b>Insights</button>
+  <button data-act="tab" data-arg="mem"><b>👥</b>Group</button>
+</div></nav>
+<div class="ov" id="ov" data-act="closeSheet"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<canvas id="cf"></canvas>
+
+<script>
+(function(){
+"use strict";
+/* ---------- helpers ---------- */
+var $=function(s){return document.querySelector(s)};
+var LS={get:function(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v===null||v===undefined?d:v}catch(e){return d}},
+        set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function r2(n){return Math.round((+n||0)*100)/100}
+function uid(p){return (p||'')+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function today(){var d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
+function b64e(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)))}
+
+var CATS=[['food','🍽️','Food','#E07B00'],['stay','🏨','Stay','#0067B1'],['travel','🚕','Transport','#007F00'],['fuel','⛽','Fuel','#795548'],
+          ['fun','🎢','Activities','#C2185B'],['shop','🛍️','Shopping','#6A1B9A'],['drinks','🍹','Drinks','#00897B'],['other','📦','Other','#757575']];
+var CAT={};CATS.forEach(function(c){CAT[c[0]]=c});CAT.settle=['settle','🤝','Settlement','#99CC00'];
+var COLORS=['#007F00','#E07B00','#0067B1','#C2185B','#6A1B9A','#00897B','#5D4037','#D32F2F','#3949AB','#689F38','#F57C00','#00838F'];
+var CURS=['₹','$','£','€','AED ','SGD '];
+
+var S={db:LS.get('ts_db',''),trips:LS.get('ts_trips',[]),code:null,trip:{},tab:'exp',es:null,loaded:false,
+       known:{},sync:'',q:'',form:null,celebrated:{},me:null};
+
+/* ---------- data access ---------- */
+function T(){return S.trip||{}}
+function meta(){return T().meta||{}}
+function cur(){return meta().currency||'₹'}
+function members(){return meta().members||{}}
+function memberList(){var m=members();return Object.keys(m).map(function(k){var o=m[k];o.id=k;return o}).sort(function(a,b){return (a.ts||0)-(b.ts||0)})}
+function mname(id){var m=members()[id];return m?m.name:'Someone'}
+function mcolor(id){var m=members()[id];return m?m.color:'#999'}
+function expList(){var e=T().expenses||{};return Object.keys(e).map(function(k){var o=e[k];o.id=k;return o})
+  .sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||(b.ts||0)-(a.ts||0)})}
+function curTrip(){for(var i=0;i<S.trips.length;i++)if(S.trips[i].code===S.code)return S.trips[i];return null}
+function fmt(n){n=r2(n);var a=Math.abs(n);return (n<0?'-':'')+cur()+a.toLocaleString('en-IN',{minimumFractionDigits:a%1?2:0,maximumFractionDigits:2})}
+function av(id,size){var n=mname(id);var s=size?'width:'+size+'px;height:'+size+'px;':'';
+  return '<span class="av" style="'+s+'background:'+mcolor(id)+'">'+esc(n.trim().slice(0,1).toUpperCase())+'</span>'}
+
+function balances(){var b={};memberList().forEach(function(m){b[m.id]=0});
+  expList().forEach(function(e){b[e.paidBy]=(b[e.paidBy]||0)+(+e.amount||0);
+    var sp=e.split||{};for(var k in sp)b[k]=(b[k]||0)-(+sp[k]||0)});
+  for(var k in b)b[k]=r2(b[k]);return b}
+function settlements(){var b=balances(),cr=[],db=[];
+  for(var id in b){var c=Math.round(b[id]*100);if(c>0)cr.push([id,c]);else if(c<0)db.push([id,-c])}
+  cr.sort(function(a,b){return b[1]-a[1]});db.sort(function(a,b){return b[1]-a[1]});
+  var out=[],i=0,j=0;while(i<db.length&&j<cr.length){var x=Math.min(db[i][1],cr[j][1]);
+    out.push({from:db[i][0],to:cr[j][0],amt:x/100});db[i][1]-=x;cr[j][1]-=x;if(!db[i][1])i++;if(!cr[j][1])j++}
+  return out}
+function equalSplit(amt,ids){var c=Math.round(amt*100),n=ids.length,base=Math.floor(c/n),rem=c-base*n,s={};
+  ids.forEach(function(id,i){s[id]=(base+(i<rem?1:0))/100});return s}
+
+/* ---------- storage / sync ---------- */
+function applyAt(path,data){var seg=path.split('/').filter(Boolean);
+  if(!seg.length){S.trip=data&&typeof data==='object'?data:{};return}
+  var o=S.trip;for(var i=0;i<seg.length-1;i++){if(!o[seg[i]]||typeof o[seg[i]]!=='object')o[seg[i]]={};o=o[seg[i]]}
+  var last=seg[seg.length-1];if(data===null)delete o[last];else o[last]=data}
+function write(path,val){var t=curTrip();applyAt(path,val);
+  if(t&&t.db){fetch(t.db+'/trips/'+encodeURIComponent(t.code)+'/'+path+'.json',{method:val===null?'DELETE':'PUT',
+      body:val===null?undefined:JSON.stringify(val)})
+    .then(function(r){if(!r.ok)throw 0}).catch(function(){toast('⚠️ Could not sync. Check internet / database rules.')})}
+  else LS.set('ts_local_'+S.code,S.trip);
+  S.known[path.split('/')[1]]=1;afterData(true)}
+function disconnect(){if(S.es){S.es.close();S.es=null}}
+function setSync(s){S.sync=s;var el=$('#syncTxt');if(el)renderHeader()}
+function connect(){disconnect();var t=curTrip();S.loaded=false;S.known={};S.trip={};
+  S.me=LS.get('ts_me_'+S.code,null);
+  if(t.db){setSync('conn');
+    try{var es=new EventSource(t.db+'/trips/'+encodeURIComponent(t.code)+'.json');S.es=es;
+      es.addEventListener('put',function(ev){var m=JSON.parse(ev.data);applyAt(m.path,m.data);afterData()});
+      es.addEventListener('patch',function(ev){var m=JSON.parse(ev.data);var p=m.path==='/'?'':m.path;for(var k in m.data)applyAt(p+'/'+k,m.data[k]);afterData()});
+      es.addEventListener('cancel',function(){setSync('off');toast('⛔ Database refused access – check rules.')});
+      es.onopen=function(){setSync('live')};
+      es.onerror=function(){setSync(navigator.onLine?'conn':'off')};
+    }catch(e){setSync('off')}
+  }else{S.trip=LS.get('ts_local_'+S.code,{});setSync('local');afterData()}
+}
+window.addEventListener('storage',function(e){if(S.code&&e.key==='ts_local_'+S.code){S.trip=LS.get(e.key,{});afterData()}});
+
+function afterData(local){
+  var ex=T().expenses||{};
+  if(S.loaded&&!local){for(var id in ex){if(!S.known[id]){var e=ex[id];
+      if(e.by!==S.me)toast((e.type==='settle'?'🤝 ':'🔔 ')+esc(mname(e.by))+' added '+esc(e.type==='settle'?'a settlement':e.desc)+' · '+fmt(e.amount));}}}
+  S.known={};for(var k in ex)S.known[k]=1;
+  if(!S.loaded&&(S.sync!=='conn'||Object.keys(T()).length||true))S.loaded=true;
+  var t=curTrip();if(t&&meta().name&&t.name!==meta().name){t.name=meta().name;LS.set('ts_trips',S.trips)}
+  render();
+  if(S.code&&meta().name&&(!S.me||!members()[S.me])&&!$('#sheet').classList.contains('on'))whoSheet();
+}
+
+/* ---------- UI: header ---------- */
+function renderHeader(){var h=$('#hdr');
+  if(!S.code){h.innerHTML='<div class="row"><div class="sun"></div><div style="flex:1"><h1>TripSplit</h1><small>Travel together. Split fairly. Stay friends.</small></div>'+
+    '<button class="ib" data-act="settings" aria-label="Settings">⚙️</button></div>';return}
+  var st={live:['live','Live'],conn:['conn','Connecting…'],off:['off','Offline'],local:['','This device only']}[S.sync]||['','…'];
+  h.innerHTML='<div class="row"><button class="ib" data-act="home" aria-label="Back">←</button><div style="flex:1;min-width:0"><h1>'+esc(meta().name||'Loading…')+'</h1>'+
+   '<span class="sync" id="syncTxt"><span class="dot '+st[0]+'"></span>'+st[1]+' · <span class="code">'+esc(S.code)+'</span></span></div>'+
+   '<button class="ib" data-act="invite" aria-label="Invite">📤</button></div>'}
+
+/* ---------- UI: render ---------- */
+function render(){renderHeader();var v=$('#view');
+  var inTrip=!!S.code&&!!meta().name;
+  $('#fab').classList.toggle('hide',!inTrip||S.tab==='mem');$('#tabs').classList.toggle('hide',!inTrip);
+  [].forEach.call(document.querySelectorAll('#tabs button'),function(b){b.classList.toggle('on',b.dataset.arg===S.tab)});
+  if(!S.code){v.innerHTML=homeView();return}
+  if(!meta().name){v.innerHTML=S.sync==='conn'&&!S.loaded?'<div class="empty"><div class="e">⏳</div>Loading trip…</div>':
+    '<div class="empty"><div class="e">🧭</div><b>Trip not found yet</b><p>Check the trip code and that everyone uses the same database.</p><button class="btn ghost" data-act="home">Back to trips</button></div>';return}
+  v.innerHTML=({exp:expView,bal:balView,ins:insView,mem:memView}[S.tab]||expView)();
+  if(S.tab==='exp')renderList();
+}
+
+function homeView(){var h='';
+  h+='<div class="card hero"><div style="font-size:22px;font-weight:800">Where did the money go? 🧳</div><p class="muted" style="margin:6px 0 14px">Create a trip, invite your gang, and everyone adds expenses live from their own phone.</p>'+
+     '<div class="grid2"><button class="btn y" data-act="newTrip">＋ New trip</button><button class="btn" style="background:rgba(255,255,255,.2)" data-act="joinTrip">🔗 Join trip</button></div></div>';
+  h+=S.db?'<div class="card row"><span style="font-size:24px">🟢</span><div class="grow"><b>Live sharing is ON</b><div class="muted">Trips you create sync in real time with everyone.</div></div><button class="btn sm ghost" data-act="settings">Edit</button></div>':
+          '<div class="card row" style="border-color:#E07B00"><span style="font-size:24px">⚡</span><div class="grow"><b>Turn on live sharing</b><div class="muted">One-time, free, 2-min setup so friends see expenses instantly.</div></div><button class="btn sm" data-act="settings">Set up</button></div>';
+  h+='<h3>My trips</h3>';
+  if(!S.trips.length)h+='<div class="card empty"><div class="e">🏝️</div>No trips yet. Start one above!</div>';
+  else{h+='<div class="card" style="padding:4px 14px">';S.trips.slice().reverse().forEach(function(t){
+    h+='<div class="item" data-act="open" data-arg="'+esc(t.code)+'"><div class="emo">🧭</div><div class="grow"><div class="t1">'+esc(t.name||t.code)+'</div><div class="muted"><span class="code">'+esc(t.code)+'</span> · '+(t.db?'🌐 Shared live':'📱 This device')+'</div></div><span style="color:var(--mu)">›</span></div>'});h+='</div>'}
+  return h}
+
+function expView(){var b=balances(),me=S.me,mb=b[me]||0,tot=0;
+  expList().forEach(function(e){if(e.type!=='settle')tot+=+e.amount||0});
+  var h='<div class="card hero"><div class="row"><div class="grow"><div class="muted">Total trip spend</div><div class="big">'+fmt(tot)+'</div></div><div style="text-align:right"><div class="muted">'+esc(mname(me))+', you</div><div style="font-size:18px;font-weight:800">'+
+    (Math.abs(mb)<0.01?'are all square ✅':mb>0?'get back '+fmt(mb):'owe '+fmt(-mb))+'</div></div></div></div>';
+  h+='<input class="search" id="search" placeholder="🔎  Search expenses…" value="'+esc(S.q)+'"><div id="expList"></div>';return h}
+function renderList(){var box=$('#expList');if(!box)return;var q=S.q.toLowerCase(),list=expList().filter(function(e){
+    return !q||(e.desc||'').toLowerCase().indexOf(q)>-1||mname(e.paidBy).toLowerCase().indexOf(q)>-1});
+  if(!list.length){box.innerHTML='<div class="card empty"><div class="e">🧾</div>'+(q?'No matches.':'No expenses yet.<br>Tap the yellow <b>+</b> to add the first one!')+'</div>';return}
+  var h='',last='';list.forEach(function(e){
+    if(e.date!==last){if(last)h+='</div>';last=e.date;h+='<div class="date">'+esc(fdate(e.date))+'</div><div class="card" style="padding:2px 12px">'}
+    var c=CAT[e.cat]||CAT.other,mine=(e.split||{})[S.me]||0,n=Object.keys(e.split||{}).length;
+    if(e.type==='settle'){var to=Object.keys(e.split||{})[0];
+      h+='<div class="item" data-act="editExp" data-arg="'+e.id+'"><div class="emo" style="background:rgba(153,204,0,.2)">🤝</div><div class="grow"><div class="t1">'+esc(mname(e.paidBy))+' paid '+esc(mname(to))+'</div><div class="muted">Settlement</div></div><div class="amt pos">'+fmt(e.amount)+'</div></div>'}
+    else h+='<div class="item" data-act="editExp" data-arg="'+e.id+'"><div class="emo" style="background:'+c[3]+'22">'+c[1]+'</div><div class="grow"><div class="t1">'+esc(e.desc)+'</div><div class="muted">'+esc(mname(e.paidBy))+' paid · '+(n>1?'split '+n+' ways':'for '+esc(mname(Object.keys(e.split||{})[0])))+'</div></div>'+
+      '<div><div class="amt">'+fmt(e.amount)+'</div><div class="muted" style="text-align:right">'+(e.paidBy===S.me?'<span class="pos">you lent '+fmt(e.amount-mine)+'</span>':mine?'<span class="neg">your share '+fmt(mine)+'</span>':'not involved')+'</div></div></div>'});
+  box.innerHTML=h+'</div>'}
+function fdate(d){try{return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}catch(e){return d}}
+
+function balView(){var b=balances(),ms=memberList(),mx=0;ms.forEach(function(m){mx=Math.max(mx,Math.abs(b[m.id]||0))});
+  var h='<h3>Who stands where</h3><div class="card">';
+  ms.forEach(function(m){var v=b[m.id]||0,w=mx?Math.abs(v)/mx*50:0;
+    h+='<div style="padding:8px 0"><div class="row">'+av(m.id)+'<div class="grow"><b>'+esc(m.name)+(m.id===S.me?' (you)':'')+'</b></div><div class="amt '+(v>0.004?'pos':v<-0.004?'neg':'')+'">'+
+      (Math.abs(v)<0.01?'settled':(v>0?'gets ':'owes ')+fmt(Math.abs(v)))+'</div></div><div class="bar"><i style="background:'+(v>=0?'var(--g2)':'var(--red)')+';'+(v>=0?'left:50%':'right:50%')+';width:'+w+'%"></i><i style="left:50%;width:2px;background:var(--mu)"></i></div></div>'});
+  h+='</div><h3>Smart settle-up</h3><div class="card">';
+  var st=settlements();
+  if(!st.length)h+='<div class="empty"><div class="e">🎉</div><b>Everyone is square!</b><div>No payments needed.</div></div>';
+  else{h+='<div class="muted" style="margin-bottom:6px">Fewest payments to clear all dues ('+st.length+'):</div>';
+    st.forEach(function(s,i){h+='<div class="settle">'+av(s.from)+'<div class="grow"><b>'+esc(mname(s.from))+'</b> → <b>'+esc(mname(s.to))+'</b><div class="amt" style="text-align:left">'+fmt(s.amt)+'</div></div><button class="btn sm" data-act="markPaid" data-arg="'+i+'">Mark paid</button></div>'})}
+  h+='</div><button class="btn y" data-act="shareSummary">💬 Share summary on WhatsApp</button>';
+  var hasExp=expList().some(function(e){return e.type!=='settle'});
+  if(!st.length&&hasExp&&!S.celebrated[S.code]){S.celebrated[S.code]=1;setTimeout(confetti,300)}
+  if(st.length)S.celebrated[S.code]=0;
+  return h}
+
+function insView(){var ex=expList().filter(function(e){return e.type!=='settle'}),ms=memberList();
+  if(!ex.length)return '<div class="card empty"><div class="e">✨</div>Add some expenses to unlock trip insights, fun badges and charts!</div>';
+  var tot=0,cat={},paid={},used={},food={},fun={},days={},big=ex[0];
+  ex.forEach(function(e){var a=+e.amount||0;tot+=a;cat[e.cat]=(cat[e.cat]||0)+a;paid[e.paidBy]=(paid[e.paidBy]||0)+a;days[e.date]=1;if(a>+big.amount)big=e;
+    for(var k in e.split){used[k]=(used[k]||0)+e.split[k];if(e.cat==='food'||e.cat==='drinks')food[k]=(food[k]||0)+e.split[k];if(e.cat==='fun')fun[k]=(fun[k]||0)+e.split[k]}});
+  var nd=Object.keys(days).length;
+  function top(o,low){var best=null;for(var k in o)if(members()[k]&&(best===null||(low?o[k]<o[best]:o[k]>o[best])))best=k;return best}
+  var stops=[],acc=0,leg='';CATS.forEach(function(c){var v=cat[c[0]]||0;if(!v)return;var p=v/tot*100;stops.push(c[3]+' '+acc+'% '+(acc+p)+'%');acc+=p;
+    leg+='<div class="leg"><i style="background:'+c[3]+'"></i><span class="grow">'+c[1]+' '+c[2]+'</span><b>'+fmt(v)+'</b><span class="muted" style="width:42px;text-align:right">'+Math.round(p)+'%</span></div>'});
+  var h='<div class="grid2"><div class="card hero"><div class="muted">Total</div><div style="font-size:22px;font-weight:800">'+fmt(tot)+'</div></div>'+
+    '<div class="card"><div class="muted">Per person</div><div style="font-size:22px;font-weight:800">'+fmt(tot/Math.max(ms.length,1))+'</div></div>'+
+    '<div class="card"><div class="muted">Per day ('+nd+'d)</div><div style="font-size:20px;font-weight:800">'+fmt(tot/nd)+'</div></div>'+
+    '<div class="card"><div class="muted">Expenses</div><div style="font-size:20px;font-weight:800">'+ex.length+'</div></div></div>';
+  h+='<h3>Where it went</h3><div class="card"><div class="donut" style="background:conic-gradient('+stops.join(',')+')"><span>'+Object.keys(cat).length+'<br><small class="muted">categories</small></span></div>'+leg+'</div>';
+  h+='<h3>Trip awards 🏆</h3>';
+  function badge(e,t,id,s){if(!id)return '';return '<div class="badge"><div class="e">'+e+'</div>'+av(id,36)+'<div class="grow"><b>'+t+': '+esc(mname(id))+'</b><div class="muted">'+s+'</div></div></div>'}
+  var tp=top(paid),tf=top(food),tu=top(fun),tl=top(used,true);
+  h+=badge('🏦','The Bank',tp,'Paid '+fmt(paid[tp]||0)+' upfront for the gang');
+  if(tf)h+=badge('🍕','Chief Foodie',tf,'Ate & drank '+fmt(food[tf])+' worth');
+  if(tu)h+=badge('🎢','Thrill Seeker',tu,fmt(fun[tu])+' on activities');
+  if(ms.length>2)h+=badge('🪶','Light Traveller',tl,'Lowest share: '+fmt(used[tl]||0));
+  h+='<div class="badge"><div class="e">💸</div><div class="grow"><b>Biggest splurge: '+esc(big.desc)+'</b><div class="muted">'+fmt(big.amount)+' paid by '+esc(mname(big.paidBy))+' on '+esc(fdate(big.date))+'</div></div></div>';
+  h+='<h3>Spend by person</h3><div class="card">';var mx=0;ms.forEach(function(m){mx=Math.max(mx,used[m.id]||0)});
+  ms.forEach(function(m){var u=used[m.id]||0;h+='<div style="padding:7px 0"><div class="row">'+av(m.id)+'<div class="grow">'+esc(m.name)+'</div><b>'+fmt(u)+'</b></div><div class="bar"><i style="left:0;width:'+(mx?u/mx*100:0)+'%;background:linear-gradient(90deg,var(--g),var(--lime))"></i></div></div>'});
+  return h+'</div>'}
+
+function memView(){var t=curTrip(),b=balances(),h='<h3>Members ('+memberList().length+')</h3><div class="card" style="padding:4px 14px">';
+  memberList().forEach(function(m){h+='<div class="item" style="cursor:default">'+av(m.id,38)+'<div class="grow"><div class="t1">'+esc(m.name)+(m.id===S.me?' <span class="pill">YOU</span>':'')+'</div><div class="muted">Balance '+fmt(b[m.id]||0)+'</div></div></div>'});
+  h+='<div class="row" style="padding:12px 0"><input class="f" id="newMem" placeholder="Add a friend’s name"><button class="btn sm" data-act="addMem" style="padding:13px 16px">Add</button></div></div>';
+  h+='<div class="card"><button class="btn y" data-act="invite">📤 Invite friends to this trip</button>'+
+    (t.db?'':'<div class="info" style="margin-top:10px">📱 This trip lives on this device only. '+(S.db?'<a href="#" data-act="toCloud">Move it to live cloud sharing →</a>':'Set up live sharing (⚙️ on home) to share it.')+'</div>')+'</div>';
+  h+='<h3>Trip settings</h3><div class="card"><label class="l">Trip name</label><div class="row"><input class="f" id="tName" value="'+esc(meta().name)+'"><button class="btn sm" data-act="rename" style="padding:13px 14px">Save</button></div>'+
+    '<label class="l">Currency</label><div class="chips">'+CURS.map(function(c){return '<button class="chip'+(cur()===c?' on':'')+'" data-act="setCur" data-arg="'+esc(c)+'">'+esc(c.trim())+'</button>'}).join('')+'</div>'+
+    '<div class="grid2" style="margin-top:14px"><button class="btn ghost" data-act="whoAmI">🙋 Switch me</button><button class="btn ghost" data-act="csv">⬇️ Export CSV</button></div>'+
+    '<button class="btn red" style="margin-top:10px" data-act="leave">Remove trip from my list</button></div>';
+  return h}
+
+/* ---------- sheets ---------- */
+function openSheet(html){var s=$('#sheet');s.innerHTML='<div class="grab"></div>'+html;s.classList.add('on');$('#ov').classList.add('on');s.scrollTop=0}
+function closeSheet(){$('#sheet').classList.remove('on');$('#ov').classList.remove('on');S.form=null}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheet()});
+
+function whoSheet(){var ms=memberList();
+  openSheet('<h2>👋 Who are you?</h2><p class="muted">Pick your name so friends know who added what.</p><div class="chips">'+
+   ms.map(function(m){return '<button class="chip" data-act="setMe" data-arg="'+m.id+'">'+av(m.id,24)+esc(m.name)+'</button>'}).join('')+'</div>'+
+   '<label class="l">Not in the list?</label><div class="row"><input class="f" id="meNew" placeholder="Your name"><button class="btn sm" style="padding:13px 16px" data-act="addMe">Join</button></div>')}
+
+function newTripSheet(){openSheet('<h2>🧳 New trip</h2>'+
+  '<label class="l">Trip name</label><input class="f" id="ntName" placeholder="e.g. Hyderabad Family Trip">'+
+  '<label class="l">Your name</label><input class="f" id="ntMe" placeholder="e.g. Piyush">'+
+  '<label class="l">Friends (comma separated)</label><input class="f" id="ntOthers" placeholder="e.g. Rahul, Priya, Amit">'+
+  '<label class="l">Currency</label><select class="f" id="ntCur">'+CURS.map(function(c){return '<option>'+esc(c)+'</option>'}).join('')+'</select>'+
+  (S.db?'<div class="info">🌐 This trip will sync live for everyone you invite.</div>':'<div class="info">📱 Live sharing is off – this trip will stay on this device until you set it up.</div>')+
+  '<button class="btn" style="margin-top:14px" data-act="createTrip">Create trip</button>')}
+
+function joinSheet(pref){openSheet('<h2>🔗 Join a trip</h2><p class="muted">Paste the invite code your friend shared (or just the trip code if you use the same database).</p>'+
+  '<textarea class="f" id="jCode" rows="3" placeholder="Paste invite code here">'+esc(pref||'')+'</textarea>'+
+  '<button class="btn" style="margin-top:12px" data-act="doJoin">Join trip</button>')}
+
+function settingsSheet(){openSheet('<h2>⚙️ Live sharing setup</h2>'+
+  '<p class="muted">TripSplit uses your own <b>free Firebase Realtime Database</b> so everyone’s phone sees every expense instantly. Do this once – friends who join with your invite code need nothing.</p>'+
+  '<ol class="guide"><li>Open <b>console.firebase.google.com</b> → <b>Create a project</b> (free Spark plan; Analytics not needed).</li>'+
+  '<li>Left menu → <b>Build → Realtime Database → Create database</b> → pick a location → <b>Start in test mode</b>.</li>'+
+  '<li>Open the <b>Rules</b> tab, paste this and <b>Publish</b> (test mode expires in 30 days, this doesn’t):<pre class="rules">{\n  "rules": {\n    "trips": {\n      "$trip": { ".read": true, ".write": true }\n    }\n  }\n}</pre></li>'+
+  '<li>Copy the database URL shown at the top of the <b>Data</b> tab (looks like <i>https://your-app-default-rtdb.asia-southeast1.firebasedatabase.app</i>) and paste below.</li></ol>'+
+  '<label class="l">Database URL</label><input class="f" id="dbUrl" placeholder="https://….firebasedatabase.app" value="'+esc(S.db)+'">'+
+  '<div class="muted" style="margin-top:8px">🔒 Anyone with a trip code can view/edit that trip – keep codes within your group and don’t store sensitive data.</div>'+
+  '<div class="grid2" style="margin-top:14px"><button class="btn ghost" data-act="testDb">Test</button><button class="btn" data-act="saveDb">Save</button></div>')}
+
+function expenseSheet(id){var ms=memberList(),e=id?(T().expenses||{})[id]:null;
+  if(e&&e.type==='settle'){var to=Object.keys(e.split||{})[0];
+    openSheet('<h2>🤝 Settlement</h2><p><b>'+esc(mname(e.paidBy))+'</b> paid <b>'+esc(mname(to))+'</b> '+fmt(e.amount)+' on '+esc(fdate(e.date))+'.</p><p class="muted">Recorded by '+esc(mname(e.by))+'</p><button class="btn red" data-act="delExp" data-arg="'+id+'">Undo this settlement</button>');return}
+  var sel={};
+  S.form=e?{id:id,desc:e.desc,amount:String(e.amount),cat:e.cat,paidBy:e.paidBy,date:e.date,mode:e.mode||'equal',sel:{},exact:{}}
+          :{id:null,desc:'',amount:'',cat:'food',paidBy:members()[S.me]?S.me:ms[0].id,date:today(),mode:'equal',sel:{},exact:{}};
+  if(e){for(var k in e.split){S.form.sel[k]=true;S.form.exact[k]=String(e.split[k])}}else ms.forEach(function(m){S.form.sel[m.id]=true});
+  var f=S.form;
+  openSheet('<h2>'+(e?'✏️ Edit expense':'➕ Add expense')+'</h2>'+
+   '<label class="l">Amount ('+esc(cur().trim())+')</label><input class="f amt-in" data-f="amount" inputmode="decimal" placeholder="0" value="'+esc(f.amount)+'">'+
+   '<label class="l">What for?</label><input class="f" data-f="desc" maxlength="60" placeholder="e.g. Dinner at Paradise" value="'+esc(f.desc)+'">'+
+   '<label class="l">Category</label><div class="chips" id="catBox"></div>'+
+   '<div class="grid2"><div><label class="l">Paid by</label><select class="f" data-f="paidBy">'+ms.map(function(m){return '<option value="'+m.id+'"'+(m.id===f.paidBy?' selected':'')+'>'+esc(m.name)+(m.id===S.me?' (me)':'')+'</option>'}).join('')+'</select></div>'+
+   '<div><label class="l">Date</label><input class="f" type="date" data-f="date" value="'+esc(f.date)+'"></div></div>'+
+   '<label class="l">Split</label><div class="seg"><button type="button" data-act="mode" data-arg="equal">Equally</button><button type="button" data-act="mode" data-arg="exact">Exact amounts</button></div>'+
+   '<div id="splitBox"></div><div class="info" id="splitInfo"></div>'+
+   '<button class="btn" style="margin-top:16px" data-act="saveExp">'+(e?'Save changes':'Add expense')+'</button>'+
+   (e?'<div class="muted" style="text-align:center;margin:10px 0">Added by '+esc(mname(e.by))+(e.ub&&e.ub!==e.by?' · edited by '+esc(mname(e.ub)):'')+'</div><button class="btn red" data-act="delExp" data-arg="'+id+'">Delete expense</button>':''));
+  renderCats();renderSplit()}
+function renderCats(){$('#catBox').innerHTML=CATS.map(function(c){return '<button type="button" class="chip'+(S.form.cat===c[0]?' on':'')+'" data-act="cat" data-arg="'+c[0]+'">'+c[1]+' '+c[2]+'</button>'}).join('')}
+function renderSplit(){var f=S.form,ms=memberList();
+  [].forEach.call(document.querySelectorAll('.seg button'),function(b){b.classList.toggle('on',b.dataset.arg===f.mode)});
+  var h='';if(f.mode==='equal'){h='<div class="row" style="justify-content:space-between;margin:10px 2px 6px"><span class="muted">Tap to include / exclude</span><a href="#" data-act="selAll">All</a></div><div class="chips">'+
+      ms.map(function(m){return '<button type="button" class="chip'+(f.sel[m.id]?' on':'')+'" data-act="tog" data-arg="'+m.id+'">'+av(m.id,22)+esc(m.name)+'</button>'}).join('')+'</div>'}
+  else h=ms.map(function(m){return '<div class="exrow">'+av(m.id)+'<span class="grow">'+esc(m.name)+'</span><input class="f" data-ex="'+m.id+'" inputmode="decimal" placeholder="0" value="'+esc(f.exact[m.id]||'')+'"></div>'}).join('');
+  $('#splitBox').innerHTML=h;updateSplitInfo()}
+function updateSplitInfo(){var f=S.form,el=$('#splitInfo');if(!f||!el)return;var a=r2(parseFloat(f.amount));
+  if(f.mode==='equal'){var n=Object.keys(f.sel).filter(function(k){return f.sel[k]}).length;
+    el.innerHTML=n?(a>0?fmt(a/n)+' per person · '+n+' '+(n>1?'people':'person'):'Split among '+n):'⚠️ Select at least one person'}
+  else{var s=0;for(var k in f.exact)s+=parseFloat(f.exact[k])||0;s=r2(s);var rem=r2(a-s);
+    el.innerHTML=Math.abs(rem)<0.01?'✅ Perfectly split':(rem>0?fmt(rem)+' left to assign':'⚠️ Over by '+fmt(-rem))+' <a href="#" data-act="fillRest" style="float:right">'+(rem>0?'Even out':'')+'</a>'}}
+
+/* ---------- actions ---------- */
+function openTrip(code){S.code=code;S.tab='exp';S.q='';connect();render();window.scrollTo(0,0)}
+function inviteCode(){var t=curTrip();return t.db?b64e(JSON.stringify({d:t.db,c:t.code})):t.code}
+function shareText(txt){if(navigator.share){navigator.share({text:txt}).catch(function(){})}else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank')}
+function copy(txt){if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){toast('📋 Copied!')},function(){});}
+function addMember(name){name=(name||'').trim();if(!name){toast('Enter a name');return null}
+  var dup=memberList().filter(function(m){return m.name.toLowerCase()===name.toLowerCase()})[0];if(dup)return dup.id;
+  var id=uid('m');write('meta/members/'+id,{name:name,color:COLORS[memberList().length%COLORS.length],ts:Date.now()});return id}
+function setMe(id){S.me=id;LS.set('ts_me_'+S.code,id);closeSheet();render();toast('Hi '+esc(mname(id))+'! 👋')}
+function join(raw){raw=(raw||'').trim();if(!raw){toast('Paste an invite code');return}
+  var code,db='';if(raw.indexOf('join=')>-1)raw=raw.split('join=')[1].split('&')[0];
+  try{var o=JSON.parse(b64d(raw));code=o.c;db=o.d}catch(e){code=raw.toUpperCase().replace(/\s/g,'');db=S.db}
+  if(!code){toast('Invalid code');return}
+  if(!db)toast('ℹ️ Plain code + no database: opening on this device only');
+  var ex=S.trips.filter(function(t){return t.code===code})[0];if(!ex){S.trips.push({code:code,name:code,db:db});LS.set('ts_trips',S.trips)}
+  closeSheet();openTrip(code)}
+
+var A={
+ home:function(){disconnect();S.code=null;S.trip={};render()},
+ tab:function(a){S.tab=a;render();window.scrollTo(0,0)},
+ open:openTrip,
+ settings:settingsSheet, newTrip:newTripSheet, joinTrip:function(){joinSheet()}, closeSheet:closeSheet,
+ testDb:function(){var u=$('#dbUrl').value.trim().replace(/\/+$/,'');if(!/^https:\/\//.test(u)){toast('URL must start with https://');return}
+   fetch(u+'/trips/_ping.json',{method:'PUT',body:JSON.stringify({t:Date.now()})}).then(function(r){toast(r.ok?'✅ Connected! Database works.':'⛔ Reached but refused – check Rules.')}).catch(function(){toast('⛔ Could not reach that URL')})},
+ saveDb:function(){var u=$('#dbUrl').value.trim().replace(/\/+$/,'');if(u&&!/^https:\/\//.test(u)){toast('URL must start with https://');return}
+   S.db=u;LS.set('ts_db',u);closeSheet();render();toast(u?'🟢 Live sharing enabled':'Live sharing turned off')},
+ createTrip:function(){var n=$('#ntName').value.trim(),me=$('#ntMe').value.trim();if(!n||!me){toast('Trip name and your name please');return}
+   var pre=(n.replace(/[^A-Za-z]/g,'').toUpperCase()+'TRIP').slice(0,4),ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',code=pre+'-';for(var i=0;i<4;i++)code+=ch[Math.floor(Math.random()*ch.length)];
+   var mem={},names=[me].concat($('#ntOthers').value.split(',').map(function(s){return s.trim()}).filter(Boolean)),seen={},myId=null;
+   names.forEach(function(nm,i){if(seen[nm.toLowerCase()])return;seen[nm.toLowerCase()]=1;var id=uid('m')+i;if(i===0)myId=id;mem[id]={name:nm,color:COLORS[i%COLORS.length],ts:Date.now()+i}});
+   S.trips.push({code:code,name:n,db:S.db});LS.set('ts_trips',S.trips);LS.set('ts_me_'+code,myId);
+   closeSheet();S.code=code;connect();S.me=myId;write('meta',{name:n,currency:$('#ntCur').value,members:mem,created:Date.now()});
+   setTimeout(function(){toast('🎉 Trip created! Tap 📤 to invite friends.')},300)},
+ doJoin:function(){join($('#jCode').value)},
+ setMe:setMe,
+ addMe:function(){var id=addMember($('#meNew').value);if(id)setMe(id)},
+ whoAmI:whoSheet,
+ invite:function(){var t=curTrip(),ic=inviteCode(),link=/^https?:/.test(location.protocol)?location.origin+location.pathname+'?join='+ic:'';
+   var msg='🧳 Join our trip "'+meta().name+'" on TripSplit!\n'+(link?'Tap: '+link+'\n\nOr open':'Open')+' TripSplit → Join trip → paste this code:\n'+ic;
+   openSheet('<h2>📤 Invite friends</h2>'+(t.db?'':'<div class="info">⚠️ This trip is on this device only, so others won’t see updates. Enable live sharing first.</div>')+
+     '<label class="l">Invite code</label><textarea class="f code" rows="3" readonly style="font-size:13px">'+esc(ic)+'</textarea>'+
+     (link?'<label class="l">Direct link</label><input class="f" readonly value="'+esc(link)+'">':'')+
+     '<div class="grid2" style="margin-top:14px"><button class="btn ghost" data-act="copyInv">📋 Copy</button><button class="btn" data-act="shareInv">💬 Share</button></div>');
+   S._inv=msg},
+ copyInv:function(){copy(S._inv)}, shareInv:function(){shareText(S._inv)},
+ addExp:function(){if(!memberList().length){toast('Add members first');return}expenseSheet()},
+ editExp:function(id){expenseSheet(id)},
+ cat:function(c){S.form.cat=c;renderCats()},
+ mode:function(m){S.form.mode=m;if(m==='exact'){var a=r2(parseFloat(S.form.amount));var ids=Object.keys(S.form.sel).filter(function(k){return S.form.sel[k]});
+     if(a>0&&ids.length&&!Object.keys(S.form.exact).length){var sp=equalSplit(a,ids);for(var k in sp)S.form.exact[k]=String(sp[k])}}renderSplit()},
+ tog:function(id){S.form.sel[id]=!S.form.sel[id];renderSplit()},
+ selAll:function(){var all=memberList().every(function(m){return S.form.sel[m.id]});memberList().forEach(function(m){S.form.sel[m.id]=!all});renderSplit()},
+ fillRest:function(){var f=S.form,a=r2(parseFloat(f.amount)),empty=memberList().filter(function(m){return !(parseFloat(f.exact[m.id])>0)});var s=0;for(var k in f.exact)s+=parseFloat(f.exact[k])||0;
+   var rem=r2(a-s);if(rem<=0||!empty.length)return;var sp=equalSplit(rem,empty.map(function(m){return m.id}));for(var k2 in sp)f.exact[k2]=String(sp[k2]);renderSplit()},
+ saveExp:function(){var f=S.form,a=r2(parseFloat(f.amount));if(!(a>0)){toast('Enter a valid amount');return}
+   var split={};if(f.mode==='equal'){var ids=memberList().map(function(m){return m.id}).filter(function(k){return f.sel[k]});if(!ids.length){toast('Pick at least one person');return}split=equalSplit(a,ids)}
+   else{var s=0;memberList().forEach(function(m){var v=r2(parseFloat(f.exact[m.id]));if(v>0){split[m.id]=v;s+=v}});if(Math.abs(r2(s)-a)>0.01){toast('Exact amounts must add up to '+fmt(a));return}}
+   var old=f.id?(T().expenses||{})[f.id]:null,id=f.id||uid('e');
+   var obj={type:'expense',desc:(f.desc||'').trim()||CAT[f.cat][2],amount:a,paidBy:f.paidBy,split:split,cat:f.cat,date:f.date||today(),mode:f.mode,
+     by:old?old.by:S.me,ts:old?old.ts:Date.now(),ub:S.me,uts:Date.now()};
+   closeSheet();write('expenses/'+id,obj);toast(old?'✏️ Updated':'✅ Added '+esc(obj.desc)+' · '+fmt(a));if(navigator.vibrate)navigator.vibrate(15)},
+ delExp:function(id){if(!confirm('Delete this for everyone?'))return;closeSheet();write('expenses/'+id,null);toast('🗑️ Deleted')},
+ markPaid:function(i){var s=settlements()[+i];if(!s)return;if(!confirm(mname(s.from)+' paid '+mname(s.to)+' '+fmt(s.amt)+'?'))return;
+   var sp={};sp[s.to]=s.amt;write('expenses/'+uid('s'),{type:'settle',desc:'Settlement',amount:s.amt,paidBy:s.from,split:sp,cat:'settle',date:today(),by:S.me,ts:Date.now()});toast('🤝 Settlement recorded')},
+ shareSummary:function(){var b=balances(),tot=0,st=settlements();expList().forEach(function(e){if(e.type!=='settle')tot+=+e.amount||0});
+   var t='🧳 *'+meta().name+'* – TripSplit summary\nTotal spend: '+fmt(tot)+' ('+memberList().length+' people)\n\n💰 *Balances*\n';
+   memberList().forEach(function(m){var v=b[m.id]||0;t+='• '+m.name+': '+(Math.abs(v)<0.01?'settled ✅':v>0?'gets back '+fmt(v):'owes '+fmt(-v))+'\n'});
+   if(st.length){t+='\n🤝 *To settle*\n';st.forEach(function(s){t+='• '+mname(s.from)+' → '+mname(s.to)+': '+fmt(s.amt)+'\n'})}else t+='\n🎉 All settled!';
+   shareText(t)},
+ addMem:function(){var el=$('#newMem');if(addMember(el.value)){el.value='';toast('👥 Member added')}},
+ rename:function(){var n=$('#tName').value.trim();if(n){write('meta/name',n);toast('Saved')}},
+ setCur:function(c){write('meta/currency',c)},
+ csv:function(){var rows=[['Date','Description','Category','Amount','Paid by'].concat(memberList().map(function(m){return m.name}))];
+   expList().slice().reverse().forEach(function(e){rows.push([e.date,e.type==='settle'?'Settlement':e.desc,CAT[e.cat]?CAT[e.cat][2]:'',e.amount,mname(e.paidBy)].concat(memberList().map(function(m){return (e.split||{})[m.id]||0})))});
+   var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));a.download=(meta().name||'trip').replace(/\W+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove()},
+ leave:function(){if(!confirm('Remove this trip from your list? (Data stays for others.)'))return;S.trips=S.trips.filter(function(t){return t.code!==S.code});LS.set('ts_trips',S.trips);A.home()},
+ toCloud:function(){if(!S.db)return;var t=curTrip(),data=S.trip;fetch(S.db+'/trips/'+encodeURIComponent(t.code)+'.json',{method:'PUT',body:JSON.stringify(data)})
+   .then(function(r){if(!r.ok)throw 0;t.db=S.db;LS.set('ts_trips',S.trips);connect();toast('🌐 Trip is now shared live!')}).catch(function(){toast('⛔ Upload failed')})}
+};
+document.addEventListener('click',function(e){var el=e.target.closest('[data-act]');if(!el)return;var a=A[el.dataset.act];if(!a)return;
+  if(el.tagName==='A')e.preventDefault();a(el.dataset.arg,el,e)});
+function onInput(e){var t=e.target;
+  if(t.dataset.f&&S.form){S.form[t.dataset.f]=t.value;if(t.dataset.f==='amount')updateSplitInfo()}
+  if(t.dataset.ex&&S.form){S.form.exact[t.dataset.ex]=t.value;updateSplitInfo()}
+  if(t.id==='search'){S.q=t.value;renderList()}}
+document.addEventListener('input',onInput);document.addEventListener('change',onInput);
+document.addEventListener('keydown',function(e){if(e.key!=='Enter')return;var id=e.target.id;
+  if(id==='newMem')A.addMem();else if(id==='meNew')A.addMe();else if(id==='tName')A.rename()});
+
+/* ---------- toast & confetti ---------- */
+var tt;function toast(m){var t=$('#toast');t.innerHTML=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},2600)}
+function confetti(){var c=$('#cf'),x=c.getContext('2d'),W=c.width=innerWidth,H=c.height=innerHeight,cols=['#007F00','#99CC00','#FFE600','#009B00','#ffffff'],p=[];
+  for(var i=0;i<140;i++)p.push({x:W/2,y:H/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-3,s:Math.random()*7+4,c:cols[i%5],r:Math.random()*6});
+  var n=0;(function f(){x.clearRect(0,0,W,H);p.forEach(function(q){q.vy+=.35;q.x+=q.vx;q.y+=q.vy;q.r+=.1;x.save();x.translate(q.x,q.y);x.rotate(q.r);x.fillStyle=q.c;x.fillRect(-q.s/2,-q.s/4,q.s,q.s/2);x.restore()});
+    if(++n<130)requestAnimationFrame(f);else x.clearRect(0,0,W,H)})();toast('🎉 Everyone is settled up!')}
+
+/* ---------- boot ---------- */
+window.addEventListener('online',function(){if(S.code)connect()});
+var jp=new URLSearchParams(location.search).get('join');
+render();
+if(jp){history.replaceState(null,'',location.pathname);join(jp)}
+})();
+</script>
+</body>
+</html>
